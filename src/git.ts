@@ -1,6 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 
+import { minimatch } from 'minimatch'
 import { Octokit } from '@octokit/core'
 
 export type GitMode = '100644' | '100755' | '040000' | '160000' | '120000'
@@ -18,6 +19,22 @@ export function buildCommitMessage(message?: string, file?: string): string {
   // Raise error if output commit message is empty
   if (!output) throw Error('Commit message is empty')
   else return output
+}
+
+export function matchesPatterns(file: string, patterns: string[]): boolean {
+  // Skip blank and comment patterns
+  const active = patterns.filter((p) => p.length > 0 && !p.startsWith('#'))
+
+  // Skip the file entirely if any pattern negates it, regardless of order
+  const negated = active
+    .filter((p) => p.startsWith('!'))
+    .some((p) => minimatch(file, p.substring(1), { dot: true }))
+  if (negated) return false
+
+  // Only include files that match a pattern
+  return active
+    .filter((p) => !p.startsWith('!'))
+    .some((p) => minimatch(file, p, { dot: true }))
 }
 
 export function normalizeRef(ref: string): string {

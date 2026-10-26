@@ -80,7 +80,8 @@ were not committed by the Action will be left staged.
 > 1. Must in the format `owner/repo-name`. To push to other repositories you
 >    will _need_ to use a [GitHub App Token](#custom-github-app-token).
 > 2. Files within your `.gitignore` will not be included. You can also negate
->    any files by prefixing it with `!`
+>    any files by prefixing it with `!` (negations always take priority,
+>    regardless of their order in the list)
 > 3. You must include either `message` or `message-file` (which takes priority).
 > 4. Only files that match a pattern you include will be in the final commit,
 >    but you can optionally stage files yourself for more control.

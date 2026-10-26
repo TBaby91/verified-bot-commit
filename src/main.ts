@@ -1,7 +1,6 @@
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 
-import { minimatch } from 'minimatch'
 import { Octokit } from '@octokit/core'
 import { throttling } from '@octokit/plugin-throttling'
 import { retry } from '@octokit/plugin-retry'
@@ -118,33 +117,18 @@ export async function run(): Promise<void> {
 
     core.startGroup(`🗂️ Creating Git Blobs...`)
     for (const file of changedFiles) {
-      for (const pattern of patterns) {
-        // Skip blank and comment patterns
-        if (pattern.startsWith('#') || pattern.length === 0) {
-          continue
-        }
+      if (!git.matchesPatterns(file, patterns)) continue
 
-        // Skip the file entirely if a pattern specifically negates it
-        if (pattern.startsWith('!')) {
-          if (minimatch(file, pattern.substring(1), { dot: true })) break
-          continue
-        }
-
-        // Only include files that match a pattern
-        if (minimatch(file, pattern, { dot: true })) {
-          const blob = await git.createBlob(
-            file,
-            workspace,
-            followSymbolicLinks,
-            repo[0],
-            repo[1],
-            octokit
-          )
-          core.info(`${blob.sha}\t${blob.path}`)
-          blobs.push(blob)
-          break
-        }
-      }
+      const blob = await git.createBlob(
+        file,
+        workspace,
+        followSymbolicLinks,
+        repo[0],
+        repo[1],
+        octokit
+      )
+      core.info(`${blob.sha}\t${blob.path}`)
+      blobs.push(blob)
     }
     core.endGroup()
     core.setOutput(

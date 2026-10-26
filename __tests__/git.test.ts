@@ -29,6 +29,23 @@ describe('git.ts', () => {
     })
   })
 
+  describe('matchesPatterns', () => {
+    test.each([
+      ['README.md', ['README.md'], true],
+      ['src/a.txt', ['*.txt'], false],
+      ['src/a.txt', ['src/*.txt'], true],
+      ['.github/ci.yml', ['.github/**'], true],
+      ['notes.md', ['# notes.md', '*.txt'], false],
+      ['config/secrets.env', ['!config/secrets.env', 'config/**'], false],
+      ['config/secrets.env', ['config/**', '!config/secrets.env'], false],
+      ['config/app.env', ['config/**', '!config/secrets.env'], true],
+      ['data/1-a.txt', ['data/**', '!data/1*-*'], false]
+    ])('handles %s with %j', (file, patterns, expected) => {
+      const result = git.matchesPatterns(file, patterns)
+      expect(result).toEqual(expected)
+    })
+  })
+
   describe('normalizeRef', () => {
     test.each([
       ['test', 'heads/test'],
