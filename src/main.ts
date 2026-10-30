@@ -12,7 +12,7 @@ export async function run(): Promise<void> {
   try {
     // Authenticate Octokit with plugins
     const SafeOctokit = Octokit.plugin(throttling, retry)
-    const maxRetries = parseInt(core.getInput('max-retries'))
+    const maxRetries = git.parseMaxRetries(core.getInput('max-retries'))
     const noRetry = core.getBooleanInput('no-retry')
     const noThrottle = core.getBooleanInput('no-throttle')
     const octokit = new SafeOctokit({

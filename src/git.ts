@@ -21,6 +21,15 @@ export function buildCommitMessage(message?: string, file?: string): string {
   else return output
 }
 
+export function parseMaxRetries(value: string): number {
+  // Only accept a whole number, since parseInt would silently turn values
+  // like 'abc' or '-1' into "no retries" and '3abc' into 3
+  if (!/^\d+$/.test(value)) {
+    throw Error(`max-retries must be a whole number of 0 or more: '${value}'`)
+  }
+  return parseInt(value, 10)
+}
+
 export function matchesPatterns(file: string, patterns: string[]): boolean {
   // Skip blank and comment patterns
   const active = patterns.filter((p) => p.length > 0 && !p.startsWith('#'))

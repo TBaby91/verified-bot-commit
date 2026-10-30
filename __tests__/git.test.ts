@@ -29,6 +29,27 @@ describe('git.ts', () => {
     })
   })
 
+  describe('parseMaxRetries', () => {
+    test.each([
+      ['0', 0],
+      ['1', 1],
+      ['10', 10]
+    ])('accepts %s', (value, expected) => {
+      const result = git.parseMaxRetries(value)
+      expect(result).toEqual(expected)
+    })
+
+    test.each(['', 'abc', '-1', '1.5', '3abc', '1e3'])(
+      'rejects %j',
+      (value) => {
+        const result = () => git.parseMaxRetries(value)
+        expect(result).toThrow(
+          'max-retries must be a whole number of 0 or more'
+        )
+      }
+    )
+  })
+
   describe('matchesPatterns', () => {
     test.each([
       ['README.md', ['README.md'], true],
