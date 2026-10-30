@@ -35872,6 +35872,14 @@ function buildCommitMessage(message, file) {
     else
         return output;
 }
+function parseMaxRetries(value) {
+    // Only accept a whole number, since parseInt would silently turn values
+    // like 'abc' or '-1' into "no retries" and '3abc' into 3
+    if (!/^\d+$/.test(value)) {
+        throw Error(`max-retries must be a whole number of 0 or more: '${value}'`);
+    }
+    return parseInt(value, 10);
+}
 function matchesPatterns(file, patterns) {
     // Skip blank and comment patterns
     const active = patterns.filter((p) => p.length > 0 && !p.startsWith('#'));
@@ -36010,7 +36018,7 @@ async function run() {
     try {
         // Authenticate Octokit with plugins
         const SafeOctokit = Octokit.plugin(throttling, retry);
-        const maxRetries = parseInt(getInput('max-retries'));
+        const maxRetries = parseMaxRetries(getInput('max-retries'));
         const noRetry = getBooleanInput('no-retry');
         const noThrottle = getBooleanInput('no-throttle');
         const octokit = new SafeOctokit({
